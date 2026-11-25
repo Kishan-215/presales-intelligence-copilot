@@ -351,7 +351,7 @@ The twelve components of one AI-generated AWS design were scored 0 to 2 (2 = app
 | Integration broker | EventBridge and Lambda | 1 | Plausible, but the HMS API is unknown and a queue is a more natural retry mechanism |
 | CI/CD and infrastructure as code | CodePipeline and CloudFormation | 2 | Supports repeatable releases |
 
-**Score: 20 of 24 = 83%** **[TO CONFIRM by the reviewer]**. This is a single reviewer scoring a single design on a synthetic document, so it indicates relevance, not reliability. The four questionable items are all cases where a human reviewer would be needed, which is the intended workflow.
+**Score: 19 of 24 = 79%**(provisional self-assessment). This is a single reviewer scoring a single design on a synthetic document, so it indicates relevance, not reliability. The four questionable items are all cases where a human reviewer would be needed, which is the intended workflow.
 
 **Follow-up made after the evaluation:** the architecture prompt now explicitly asks for Optional components, and the code adds a visible note when a design marks everything Recommended. The effect was **not** re-measured in the formal evaluation.
 

@@ -2,7 +2,7 @@
 
 **Prepared by:** Kishan C
 **Date:** 25 November 2026 (research accessed 24 November 2026)
-**Status:** Draft for submission. Evaluation figures are in `reports/evaluation_results.md`.
+**Status:** Final submission – Proof of Concept assessment. Evaluation figures are in `reports/evaluation_results.md`.
 
 ---
 
