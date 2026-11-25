@@ -1,0 +1,59 @@
+SYNTHETIC DEMONSTRATION DOCUMENT
+This is fictional sample data created for testing the Cynbit Presales Copilot. It is NOT a real customer document and does not describe any real Cynbit customer or project.
+
+REQUEST FOR PROPOSAL (RFP)
+Patient Record Management Modernization Programme
+Issued by: Meridian Care Hospitals (fictional organisation)
+Document reference: MCH-RFP-2026-014 (fictional)
+
+1. BACKGROUND
+Meridian Care Hospitals is a multi-specialty hospital group operating three hospitals and several outpatient clinics. Patient records are currently managed through a mix of paper files, shared network folders and spreadsheets, which are held separately at each site. Staff spend significant time searching for records, patient documents are often duplicated or misfiled, and there is no consistent record of who has viewed or changed a patient file.
+
+2. BUSINESS OBJECTIVES
+2.1 Replace fragmented paper and spreadsheet records with a single, secure digital patient-record workflow.
+2.2 Reduce the time clinical and administrative staff spend locating and filing patient documents.
+2.3 Improve traceability by recording who accessed or changed patient information.
+2.4 Reduce missed and double-booked appointments.
+
+3. USERS
+The system will be used by doctors, nurses, front-desk and reception staff, medical records staff, and hospital administrators. Patients will not have direct access in this phase.
+
+4. SCOPE OF WORK
+The selected vendor will design, build and deploy a cloud-hosted web application with the capabilities below.
+
+4.1 Functional requirements
+FR1. The system shall provide a secure web application accessible from standard desktop browsers inside the hospitals.
+FR2. The system shall allow authorised staff to create, view, update and archive patient records.
+FR3. The system shall enforce role-based access control so that doctors, nurses, front-desk staff, records staff and administrators see only the information their role permits.
+FR4. The system shall allow staff to upload scanned and digital patient documents (for example lab reports, referral letters and discharge summaries) and attach them to a patient record.
+FR5. The system shall maintain an audit log that records who viewed, created, changed or downloaded patient information, and when.
+FR6. The system shall provide appointment management, including booking, rescheduling, cancelling and viewing a doctor's daily schedule.
+FR7. The system shall integrate with the hospital's existing Hospital Management System (HMS) through its API so that patient demographic details and appointment information stay consistent.
+FR8. The system shall include an AI-assisted feature that suggests a document type (for example lab report, prescription, discharge summary) for each uploaded patient document. A staff member must confirm or correct the suggestion.
+
+4.2 Non-functional requirements
+NFR1. Patient information must be stored securely, with encryption of data at rest and in transit.
+NFR2. The solution must be hosted in the cloud and must scale to support growth across additional sites in the future.
+NFR3. The system must be highly available during hospital working hours, as clinical staff depend on it.
+NFR4. Search and record retrieval should feel fast for staff during busy periods.
+NFR5. The user interface must be simple enough for staff with limited technical training.
+
+5. SECURITY AND COMPLIANCE
+5.1 Access to the system must require authenticated user accounts.
+5.2 The solution must handle patient data in line with applicable data protection law, including India's Digital Personal Data Protection Act, 2023.
+5.3 The vendor must describe how any additional healthcare-specific regulatory requirements will be identified and met.
+
+6. INTEGRATION
+The existing Hospital Management System is a commercial product used across all three hospitals. It exposes an API that the new application is expected to use. The vendor will be given further information about the HMS during the detailed design phase.
+
+7. CONSTRAINTS AND DEPENDENCIES
+7.1 The hospital IT team has three staff members and can support testing but not development.
+7.2 Hospital staff must be available for requirement workshops and user acceptance testing.
+7.3 The HMS vendor's cooperation is needed for API access.
+7.4 Migration of historical paper records is outside the scope of this project; only newly created documents are in scope.
+
+8. TIMELINE
+The hospital group would like the first release to go live approximately nine months after contract signing, with a phased rollout across the three hospitals.
+
+9. PROPOSAL EXPECTATIONS
+Vendors should provide a proposed technical architecture, a preliminary effort estimate, key risks and assumptions, and an implementation roadmap.

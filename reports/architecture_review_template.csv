@@ -1,0 +1,13 @@
+Component,Layer,Suggested service,Status,Requirements,Score (0-2),Reviewer notes
+Web Application Hosting,Frontend,Amazon CloudFront & Amazon S3,Recommended,"REQ-001, REQ-009, REQ-013",,
+API Gateway,API layer,Amazon API Gateway,Recommended,"REQ-001, REQ-007, REQ-009",,
+Backend Application Services,Backend,Amazon ECS with AWS Fargate,Recommended,"REQ-002, REQ-006, REQ-007, REQ-010, REQ-011",,
+Primary Relational Database,Database,Amazon RDS for PostgreSQL,Recommended,"REQ-002, REQ-003, REQ-005, REQ-006, REQ-009, REQ-012",,
+Document Storage,File storage,Amazon S3,Recommended,"REQ-004, REQ-009, REQ-010",,
+Identity and Access Management,Authentication,Amazon Cognito,Recommended,"REQ-003, REQ-014",,
+Key Management Service,Security,AWS Key Management Service (KMS),Recommended,"REQ-009, REQ-015",,
+Centralized Audit Logging,Logging,Amazon CloudWatch Logs & AWS CloudTrail,Recommended,REQ-005,,
+Application Monitoring,Monitoring,Amazon CloudWatch,Recommended,"REQ-011, REQ-012",,
+Intelligent Document Classification,AI/ML,Amazon Comprehend Medical / Custom ML on Amazon SageMaker,Recommended,REQ-008,,
+Integration Broker,Integration,Amazon EventBridge & AWS Lambda,Recommended,REQ-007,,
+Infrastructure as Code & CI/CD,Deployment,AWS CodePipeline & AWS CloudFormation,Recommended,REQ-010,,

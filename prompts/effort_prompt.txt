@@ -1,0 +1,219 @@
+def demo_effort_inputs() -> EffortInputs:
+    return EffortInputs.model_validate(
+        {
+            "size": "Medium",
+            "integration_count": 1,
+            "security_level": "High",
+            "requirement_clarity": "Partial",
+            "ai_complexity": "Medium",
+            "has_mobile_app": False,
+            "rationale": [
+                "Medium size: about 19 requirements covering five user roles, patient records, documents, appointments and audit logging (REQ-001 to REQ-006).",
+                "One external integration: the existing HMS API (REQ-007), whose specification has not been provided.",
+                "High security: sensitive patient data, role-based access, audit logging, encryption and DPDP Act compliance (REQ-003, REQ-005, REQ-009, REQ-015).",
+                "Partial clarity: user volumes, cloud provider, retention, recovery targets and API details are missing.",
+                "Medium AI complexity: document type classification with staff confirmation, which needs configuration and accuracy checks (REQ-008).",
+            ],
+        }
+    )
+
+
+# Each component lists the service for both providers so one table can build either design.
+_ARCH_COMPONENTS = [
+    {
+        "layer": "Frontend", "name": "Staff web application",
+        "aws": "Single-page web app on Amazon S3 with Amazon CloudFront",
+        "azure": "Single-page web app on Azure Static Web Apps",
+        "purpose": "Browser interface for doctors, nurses, front-desk and records staff.",
+        "reason": "REQ-001 and REQ-013 need a simple, secure web application; static hosting behind a CDN is low-maintenance and HTTPS-only.",
+        "ids": ["REQ-001", "REQ-013"],
+        "considerations": "The UI framework (for example React) is an assumption. Supported browsers are not specified.",
+        "status": "Recommended",
+    },
+    {
+        "layer": "Backend", "name": "Application backend",
+        "aws": "Containerised service on AWS Fargate (Amazon ECS)",
+        "azure": "Azure Container Apps",
+        "purpose": "Business logic for patient records, documents, appointments and role checks.",
+        "reason": "Covers REQ-002, REQ-003 and REQ-006. Managed containers avoid server administration, which suits a three-person hospital IT team (REQ-017).",
+        "ids": ["REQ-002", "REQ-003", "REQ-006", "REQ-017"],
+        "considerations": "Language and framework are open. Scaling rules depend on the unknown concurrent user count.",
+        "status": "Recommended",
+    },
+    {
+        "layer": "API layer", "name": "API gateway",
+        "aws": "Amazon API Gateway",
+        "azure": "Azure API Management",
+        "purpose": "Single entry point with throttling and token validation.",
+        "reason": "Helpful for central access control and rate limiting, but the requirements do not demand it. A load balancer may be enough.",
+        "ids": ["REQ-003", "REQ-014"],
+        "considerations": "Adds cost and complexity. Decide after expected load and integration needs are known.",
+        "status": "Optional",
+    },
+    {
+        "layer": "Database", "name": "Relational database",
+        "aws": "Amazon RDS for PostgreSQL (Multi-AZ)",
+        "azure": "Azure Database for PostgreSQL Flexible Server (zone-redundant)",
+        "purpose": "Stores patient records, appointments, roles and audit events.",
+        "reason": "Patient and appointment data is structured and relational (REQ-002, REQ-006). Managed high availability supports REQ-011.",
+        "ids": ["REQ-002", "REQ-006", "REQ-011"],
+        "considerations": "Existing database details are not provided and PostgreSQL is an assumption. Backup and recovery targets (RTO/RPO) are unknown.",
+        "status": "Recommended",
+    },
+    {
+        "layer": "File storage", "name": "Document storage",
+        "aws": "Amazon S3 with server-side encryption and versioning",
+        "azure": "Azure Blob Storage with encryption and soft delete",
+        "purpose": "Stores uploaded scanned and digital patient documents.",
+        "reason": "REQ-004 requires document uploads. Object storage is the standard fit and supports encryption at rest (REQ-009).",
+        "ids": ["REQ-004", "REQ-009"],
+        "considerations": "File types, size limits and volumes are unknown. Lifecycle rules depend on the retention period.",
+        "status": "Recommended",
+    },
+    {
+        "layer": "Authentication", "name": "Identity and access",
+        "aws": "Amazon Cognito (federated with the hospital directory if one exists)",
+        "azure": "Microsoft Entra ID",
+        "purpose": "Sign-in, optional multi-factor authentication and role assignment.",
+        "reason": "REQ-014 requires authenticated users and REQ-003 requires role-based access.",
+        "ids": ["REQ-003", "REQ-014"],
+        "considerations": "The authentication mechanism is not specified. Confirm whether a hospital directory exists.",
+        "status": "Recommended",
+    },
+    {
+        "layer": "Security", "name": "Encryption keys and secrets",
+        "aws": "AWS KMS and AWS Secrets Manager",
+        "azure": "Azure Key Vault",
+        "purpose": "Manage encryption keys and application secrets.",
+        "reason": "REQ-009 requires encryption at rest and in transit. Central key management keeps secrets out of code.",
+        "ids": ["REQ-009"],
+        "considerations": "Key ownership (provider-managed or customer-managed keys) is not specified.",
+        "status": "Recommended",
+    },
+    {
+        "layer": "Security", "name": "Network and web protection",
+        "aws": "AWS WAF and a VPC with private subnets",
+        "azure": "Azure Front Door WAF and a Virtual Network with private endpoints",
+        "purpose": "Keep data stores private and filter malicious web traffic.",
+        "reason": "Patient data is sensitive (REQ-009, REQ-015). Private data stores reduce exposure.",
+        "ids": ["REQ-009", "REQ-015"],
+        "considerations": "Whether access is limited to hospital networks or a VPN is unknown.",
+        "status": "Recommended",
+    },
+    {
+        "layer": "Logging", "name": "Audit logging",
+        "aws": "Application audit table in PostgreSQL, plus Amazon CloudWatch Logs and AWS CloudTrail",
+        "azure": "Application audit table in PostgreSQL, plus Azure Monitor Logs and the Activity Log",
+        "purpose": "Record who viewed, created, changed or downloaded patient information.",
+        "reason": "REQ-005 requires an audit log. User-level events must be written by the application; cloud logs cover infrastructure activity.",
+        "ids": ["REQ-005"],
+        "considerations": "Retention period and tamper-protection needs are not specified.",
+        "status": "Recommended",
+    },
+    {
+        "layer": "Monitoring", "name": "Monitoring and alerting",
+        "aws": "Amazon CloudWatch",
+        "azure": "Azure Monitor and Application Insights",
+        "purpose": "Track availability, errors and response times.",
+        "reason": "Supports REQ-011 (availability) and REQ-012 (responsiveness).",
+        "ids": ["REQ-011", "REQ-012"],
+        "considerations": "No measurable targets exist yet, so alert thresholds are placeholders.",
+        "status": "Recommended",
+    },
+    {
+        "layer": "AI/ML", "name": "Document type classification",
+        "aws": "Amazon Textract for text extraction with a custom classifier (for example Amazon Comprehend)",
+        "azure": "Azure AI Document Intelligence (custom classification)",
+        "purpose": "Suggest a document type for each upload, confirmed by staff.",
+        "reason": "REQ-008 asks for AI-assisted document type suggestions. Managed services avoid building and hosting a custom model.",
+        "ids": ["REQ-008"],
+        "considerations": "The document type list, accuracy target and rules for sending patient data to this service are unknown. Check service availability and data residency in the chosen region.",
+        "status": "Recommended",
+    },
+    {
+        "layer": "Integration", "name": "HMS integration service",
+        "aws": "Integration worker on ECS with Amazon SQS for retries",
+        "azure": "Azure Container Apps job with Azure Service Bus",
+        "purpose": "Exchange patient and appointment data with the hospital's HMS through its API.",
+        "reason": "REQ-007 requires HMS integration. A queue-backed worker tolerates HMS downtime and retries failed calls.",
+        "ids": ["REQ-007"],
+        "considerations": "The HMS API specification, authentication and sync direction are unknown. A VPN or private link to the hospital network may be needed.",
+        "status": "Recommended",
+    },
+    {
+        "layer": "Deployment", "name": "CI/CD and environments",
+        "aws": "GitHub Actions or AWS CodePipeline, Amazon ECR, separate dev, test and production environments",
+        "azure": "GitHub Actions or Azure DevOps, Azure Container Registry, separate dev, test and production environments",
+        "purpose": "Repeatable builds and releases.",
+        "reason": "Supports user acceptance testing (REQ-017) and the phased rollout in REQ-019.",
+        "ids": ["REQ-017", "REQ-019"],
+        "considerations": "Release approval steps and change windows at the hospitals are not specified.",
+        "status": "Recommended",
+    },
+    {
+        "layer": "Resilience", "name": "Cross-region disaster recovery",
+        "aws": "Cross-region backup copies with AWS Backup and a standby environment",
+        "azure": "Geo-redundant backups and a paired-region standby environment",
+        "purpose": "Recover from a regional outage.",
+        "reason": "Only worth adding if the (unknown) RTO/RPO targets or the business require it.",
+        "ids": ["REQ-011"],
+        "considerations": "Must respect data residency rules. Cost increases significantly.",
+        "status": "Optional",
+    },
+]
+
+
+def demo_architecture(provider: str = "AWS") -> ArchitectureResult:
+    key = "aws" if provider == "AWS" else "azure"
+    other = "Azure" if provider == "AWS" else "AWS"
+    components = [
+        {
+            "layer": c["layer"], "component_name": c["name"], "suggested_service": c[key],
+            "purpose": c["purpose"], "reason": c["reason"], "requirement_ids": c["ids"],
+            "considerations": c["considerations"], "status": c["status"],
+        }
+        for c in _ARCH_COMPONENTS
+    ]
+    return ArchitectureResult.model_validate(
+        {
+            "cloud_provider": provider,
+            "assumptions": [
+                f"The RFP names no cloud provider. {provider} was selected for this draft; generate {other} to compare.",
+                "Hosting in an India region is assumed because the RFP cites India's DPDP Act. Data residency must be confirmed.",
+                "Staff reach the application over the hospital network or a VPN. The access model is unconfirmed.",
+                "Concurrent users are unknown, so the design uses managed services that can scale and includes no sizing.",
+                "PostgreSQL is assumed as the database engine because no existing database is described.",
+            ],
+            "components": components,
+            "communication_flow": (
+                "Staff open the web application in a browser over HTTPS and sign in through the identity service. "
+                "The frontend calls the backend API, optionally through an API gateway. The backend reads and writes "
+                "patient and appointment data in the relational database, stores uploaded documents in object storage "
+                "and writes audit events. After an upload, the backend asks the AI service for a document type suggestion "
+                "and shows it for staff to confirm. A queue-backed integration service exchanges data with the HMS API. "
+                "Monitoring and logging collect telemetry from all components."
+            ),
+            "trade_offs": [
+                "Managed services reduce operations effort for a small hospital IT team but create provider lock-in and ongoing service costs.",
+                "One relational database keeps patient, appointment and audit data consistent; heavy document search may later need a separate search service.",
+                "Managed AI classification is faster than a custom model but gives less control over accuracy and needs a decision on how patient data is handled.",
+                "An API gateway improves central control but adds cost and complexity, so it is marked optional.",
+                "Multi-zone high availability is recommended; cross-region disaster recovery stays optional until RTO/RPO and residency rules are known.",
+            ],
+            "security_considerations": [
+                "Encrypt data at rest and in transit using managed keys (REQ-009).",
+                "Keep the database and storage on private networks and expose only the web entry point.",
+                "Enforce role-based access in the backend, not only in the user interface (REQ-003).",
+                "Write user-level audit events for every view, change and download (REQ-005).",
+                "Confirm data residency and processing rules under the DPDP Act, 2023 before choosing regions and the AI service (REQ-015).",
+                "Use least-privilege service roles and keep secrets in a managed vault.",
+            ],
+            "scalability_considerations": [
+                "Run the backend as stateless containers so instances can be added as load grows (REQ-010).",
+                "Serve the frontend from a CDN so web traffic does not load the backend.",
+                "Grow the database with larger instances or read replicas; sizing needs the concurrent user count.",
+                "Add new hospital sites as configuration of the same deployment rather than separate copies.",
+            ],
+            "mermaid_diagram": "",
+        }
+    )
